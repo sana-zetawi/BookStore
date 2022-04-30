@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-import requests
 from itertools import cycle
 import requests
 import json
@@ -12,11 +11,11 @@ def purchase(item_number):
     result=requests.get(next(swap)+"/info/"+str(item_number)) 
     res=json.loads(result.content)
     masage=res[0]['number_of_items']
-    
+
     if(masage>0):
          result2=requests.put(next(swap)+"/decrease/"+str(item_number),data={'amount': 1})
          result3=requests.put(next(swap)+"/decrease/"+str(item_number),data={'amount':1})
-         next(swap)
          return(result2.content)
+
 if __name__ == '__main__':
-   app.run(debug=True, host='0.0.0.0', port=7000)
+   app.run(debug=True, host='0.0.0.0', port=10000)
