@@ -2,13 +2,13 @@ from itertools import cycle
 import json
 from flask import Flask, request,jsonify
 import requests
+import time
 class Quiery:
   def __init__(self,operation,parameter,output,count):
     self.operation = operation
     self.parameter=parameter
     self.output=output
     self.count=count
-
 swap=cycle(["http://192.168.1.20:4000","http://192.168.1.20:9000"])
 swap2=cycle(["http://192.168.1.20:7000","http://192.168.1.20:10000"])
 list_cache = [] 
@@ -47,9 +47,12 @@ def delete_search(para):
 
 @app.route("/search/<topic>",methods=['GET'])
 def search(topic):
-    value=my_function(search,str(topic))
+    start = time.time()
+    value=my_function("search",str(topic))
+    end = time.time()
     if("not in cache"==value):
       result=requests.get(next(swap)+"/search/"+str(topic))
+      print("Time consumed in server: ",result.elapsed.total_seconds()+(end - start))
       if(len(list_cache) < 5):
        list_cache.append(Quiery("search",str(topic),result.content,0))
       else:
@@ -57,13 +60,17 @@ def search(topic):
         list_cache.append(Quiery("search",str(topic),result.content,0))
       return (result.content)
     else:
+     print("Time consumed in cache: ",end - start)
      return value
 
 @app.route("/info/<item_number>",methods=['GET'])
 def info(item_number):
-    value=my_function(info,item_number)
+    start = time.time()
+    value=my_function("info",item_number)
+    end = time.time()
     if("not in cache"==value):
       result=requests.get(next(swap)+"/info/"+str(item_number))
+      print("Time consumed in server: ",result.elapsed.total_seconds()+(end - start))
       if(len(list_cache) < 5):
        list_cache.append(Quiery("info",item_number,result.content,0))
       else:
@@ -71,6 +78,7 @@ def info(item_number):
         list_cache.append(Quiery("info",item_number,result.content,0))
       return (result.content)
     else:
+     print("Time consumed in cache: ",end - start)
      return value   
 
 @app.route("/update_price/<item_number>",methods=['PUT'])
@@ -106,7 +114,6 @@ def decrease(item_number):
 @app.route("/purchase/<item_number>",methods=['PUT'])
 def purchase(item_number):
     result=requests.put(next(swap2)+"/purchase/"+str(item_number))
-  
     delete_info(item_number)
     res=json.loads(result.content)
     delete_search(res["topic"])

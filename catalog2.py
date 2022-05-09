@@ -99,6 +99,4 @@ def decrease(item_number):
             if count ==1:
                return jsonify({'Error': 'OPS! The Book Is Out Of Stock'})
             return jsonify({'Error': 'OPS! No Book With This ID'})
-
-if __name__ == '__main__':
-   app.run(debug=True, host='0.0.0.0', port=9000)
+if __name__ == '__main__':   app.run(debug=True, host='0.0.0.0', port=9000)
